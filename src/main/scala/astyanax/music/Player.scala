@@ -7,6 +7,8 @@ import javax.sound.sampled.AudioSystem
 
 object Player {
 
+    
+
     def rate(using player: Player) = player.sampleRate
 
     def scoped(op: Player ?=> Unit): Unit = 

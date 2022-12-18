@@ -2,6 +2,9 @@ package astyanax.music
 
 object Sound {
 
+    def noise(amplitude: Double) = new Sound {
+        def apply(t: Double): Double = amplitude * (math.random() * 2 - 1)
+    }
     def from(f: Double => Double) = new Sound {
         def apply(t: Double) = f(t)
     }
@@ -23,6 +26,9 @@ trait Sound extends (Double => Double) { tone =>
         val values = Array.range(0, (duration * player.sampleRate).toInt).map(t => tone(t / player.sampleRate))
         if msg != "" then println(msg)
         player.play(values)
+    
+    def delay(time: Double, amount: Int, decay: Int => Double) = 
+        Seq.tabulate(amount + 1)(i => (Sound.from(t => apply(t - i * time)) -> decay(i))).sound
 }
 
 object Wave {
@@ -63,4 +69,3 @@ case class Saw(frequency: Double, amplitude: Double = 1.0) extends Wave {
 case class Triangle(frequency: Double, amplitude: Double = 1.0) extends Wave {
     def apply(t: Double) = amplitude * 2 * math.abs(t * frequency - math.floor(0.5 + t * frequency))
 }
-

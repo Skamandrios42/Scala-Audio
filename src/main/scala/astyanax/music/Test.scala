@@ -161,17 +161,15 @@ package astyanax.music
 
 //def env(t: Double) = (1.0 - 5 * math.pow((t - 1 - math.sqrt(0.2)), 2)) max 0
 
-def env(t: Double) = (10 * t) min math.pow(0.1, t - 0.2)
+def env(t: Double) = (10 * t) min math.pow(0.1, t - 0.2) min 0.3 max 0.0
 def baseEnv(t: Double, end: Double, top: Double) = 
-    if t < end then (2 * t) min top * math.pow(0.6, t - 0.2)
+    if t < end then (2 * t) min top * math.pow(0.8, t - 0.2) max 0.0
     else 0
-
-def envelope(f: Double => Double): Double => Double = f(_) min 1.0 max 0.0
 
 @main def shifting = Player.scoped {
     val notes = Notes(440)
     val sound = Wave.unison(20, notes.get("a"), Triangle.apply).detune(2).sound
-    delay(sound *> envelope(env), 1, 10, math.pow(0.5, _)).play(10)
+    delay(sound *> env, 1, 10, math.pow(0.5, _)).play(10)
 
 }
 
@@ -182,13 +180,14 @@ import Track.on
 
 @main def simpleTrack = Player.scoped {
     val notes = Notes(440)
-    def note(note: String, i: Int) = Wave.unison(20, notes.get(note, i), Triangle.apply).detune(2).sound *> envelope(env)
-    def base(note: String, i: Int, length: Double) = Sine(notes.get(note, i)) *> envelope(baseEnv(_, end = length, top = 0.1))
+    def note(note: String, i: Int) = 
+        Synth.from(Wave.unison(20, notes.get(note, i), Triangle.apply).detune(2).sound, env, 4)
+    def base(note: String, i: Int, length: Double) = 
+        Synth.from(Sine(notes.get(note, i)), baseEnv(_, end = length, top = 0.1), length)
     val c = Counter(0, 0.3)
 
-
     val track = Track.scoped {
-        base("g", -3, 8 * c.diff - 0.1)
+        base("g", -3, 8 * c.diff - 0.1) on c.value
         note("g", -2) on c()
         note("d", -1) on c()
         note("h",  0) on c()
@@ -198,7 +197,7 @@ import Track.on
         note("h",  0) on c()
         note("d", -1) on c()
         
-        base("g", -3, 8 * c.diff - 0.1)
+        base("g", -3, 8 * c.diff - 0.1) on c.value
         note("g", -2) on c()
         note("d", -1) on c()
         note("h",  0) on c()
@@ -208,7 +207,7 @@ import Track.on
         note("h",  0) on c()
         note("d", -1) on c()
 
-        base("c", -2, 8 * c.diff - 0.1)
+        base("c", -3, 8 * c.diff - 0.1) on c.value
         note("g", -2) on c()
         note("e", -1) on c()
         note("c",  0) on c()
@@ -218,7 +217,7 @@ import Track.on
         note("c",  0) on c()
         note("e", -1) on c()
         
-        base("c", -2, 8 * c.diff - 0.1)
+        base("c", -3, 8 * c.diff - 0.1) on c.value
         note("g", -2) on c()
         note("e", -1) on c()
         note("c",  0) on c()
@@ -228,7 +227,7 @@ import Track.on
         note("c",  0) on c()
         note("e", -1) on c()
 
-        base("fis", -3, 8 * c.diff - 0.1)
+        base("fis", -3, 8 * c.diff - 0.1) on c.value
         note("g", -2) on c()
         note("fis", -1) on c()
         note("c", 0) on c()
@@ -238,7 +237,7 @@ import Track.on
         note("c", 0) on c()
         note("fis", -1) on c()
 
-        base("fis", -3, 8 * c.diff - 0.1)
+        base("fis", -3, 8 * c.diff - 0.1) on c.value
         note("g", -2) on c()
         note("fis", -1) on c()
         note("c", 0) on c()
@@ -248,7 +247,7 @@ import Track.on
         note("c", 0) on c()
         note("fis", -1) on c()
 
-        base("g", -3, 8 * c.diff - 0.1)
+        base("g", -3, 8 * c.diff - 0.1) on c.value
         note("g", -2) on c()
         note("g", -1) on c()
         note("h",  0) on c()
@@ -258,7 +257,7 @@ import Track.on
         note("h",  0) on c()
         note("g", -1) on c()
 
-        base("g", -3, 8 * c.diff - 0.1)
+        base("g", -3, 8 * c.diff - 0.1) on c.value
         note("g", -2) on c()
         note("g", -1) on c()
         note("h",  0) on c()
@@ -269,7 +268,7 @@ import Track.on
         note("fis", -1) on c()
 
     }
-    track.play(25)
+    track.play
 
 }
 
@@ -279,3 +278,60 @@ class Counter(var value: Double, val diff: Double) {
         value += diff
         before
 }
+
+
+@main def awake = Player.scoped {
+
+    val notes = Notes(440)
+    val t = Timer(0.2)
+
+    def key(note: String, i: Int) =
+        val f = notes.get(note, i)
+        val noise = Sound.noise(0.2)
+        val start = Wave.unison(10, notes.get(note, i + 1), Sine.apply).detune(5).sound
+        val end = Wave.harmonize(3, notes.get(note, i), Triangle.apply).detune(1).sound
+        val chorus = Wave.unison(6, notes.get(note, i), Square.apply).detune(1).sound
+        def env(f: Double => Double): Double => Double = t => if t > 0 then f(t) min 1.0 max 0.0 else 0.0
+        def env_noise(t: Double) = (-8 * t + 1)
+        def env_start(t: Double) = (math.pow(2, -8 * t))
+        def env_end(t: Double) = 0.6 - (math.pow(2, -8 * t)) min (math.pow(3, -2 * t))
+        val sound = Sound.sum(
+            start *> env(env_start) -> 0.4,
+            noise *> env(env_noise) -> 0.2,
+            end *> env(env_end) -> 0.35,
+            chorus *> env(env_end(_)) -> 0.05,
+        )
+        Synth.from(delay(sound, 0.4, 8, math.pow(0.5, _)), 4)
+        
+    Track.scoped {
+        Synth.from(key("a", 0), 5) on t.next
+        Synth.from(key("a", 0), 5) on t.next
+        Synth.from(key("as", 0), 5) on t.next
+        Synth.from(key("a", 0), 5) on t.next
+        Synth.from(key("c", 0), 5) on t.next
+        t.wait(7.0)
+        Synth.from(key("g", -1), 5) on t.next
+        Synth.from(key("g", -1), 5) on t.next
+        Synth.from(key("d", -1), 5) on t.next
+        Synth.from(key("d", 0), 5) on t.next
+        Synth.from(key("a", -1), 5) on t.next
+        Synth.from(key("a", 0), 5) on t.next
+        Synth.from(key("as", 0), 5) on t.next
+        Synth.from(key("a", 0), 5) on t.next
+        Synth.from(key("c", 0), 5) on t.next
+    }.play
+    println("finishing main")
+}
+
+@main def testFilters() = 
+    println(FIRFilter(Seq(0.4, 0.6)).useOn(Array(1, 2, 3, 1, 1)).mkString("[", ", ", "]"))
+    Player.scoped {
+    val sound = Sound.noise(0.2)
+    val synth = Synth.from(sound, 2)
+    Track.scoped {
+        synth on 0
+        synth.filter(FIRFilter(Seq.fill(100)(0.01))) on 3
+    }.play
+}
+
+    
