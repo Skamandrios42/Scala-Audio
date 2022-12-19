@@ -1,5 +1,7 @@
 package astyanax.music
 
+import scala.annotation.targetName
+
 case class Envelope(
     attack: Double => Double, 
     sustain: Double => Double, 
