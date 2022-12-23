@@ -3,7 +3,7 @@ package astyanax.music2
 object Effects {
 
     def harmonize(voices: Int, f: Double, wave: (Double, Double) => Wave = Sine.apply) =
-        Seq.tabulate(voices)(i => wave(i * f, 1.0) -> 1.0 / voices)
+        Seq.tabulate(voices)(i => wave((i + 1) * f, 1.0) -> 1.0 / voices)
     def unison(voices: Int, f: Double, wave: (Double, Double) => Wave = Sine.apply) =
         Seq.fill(voices)(wave(f, 1.0) -> 1.0 / voices)
 

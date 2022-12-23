@@ -8,4 +8,6 @@ class Timer(val step: Double) {
         now += steps * step
         before
     def wait(steps: Double): Unit = next(steps)
+    def reset = 
+        now = 0
 }

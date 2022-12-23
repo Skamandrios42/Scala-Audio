@@ -1,8 +1,8 @@
-package astyanax
+package astyanax.utils
 
 import scala.concurrent.duration.Duration
 
-object Timer {
+object Benchmark {
 
     private def mkString(time: Double) =
         if (time < 1000) f"$time%.3fms"
