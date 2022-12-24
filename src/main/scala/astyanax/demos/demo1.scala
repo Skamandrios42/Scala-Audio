@@ -1,11 +1,12 @@
-package astyanax.music2
+package astyanax.demos
 
 import math.{pow, sqrt, exp}
-import astyanax.music2.Effects.detune
+import astyanax.music2.{Music, Notes, Timer, Filter, Synth, Sound, Noise, Effects, Envelope, Saw, Sine, Triangle, Square}
 import astyanax.music2.Track.{on, repeat}
+import astyanax.music2.Effects.detune
 import astyanax.utils.Benchmark
 
-@main def demo1 = Music {
+@main def demo1 = Music(debugging = true) {
     val notes = Notes(440)
     val t = Timer(0.2)
 

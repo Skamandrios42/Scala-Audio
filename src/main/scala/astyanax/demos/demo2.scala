@@ -6,7 +6,8 @@ import astyanax.music2.Track.{on, repeat}
 import astyanax.music2.Effects.detune
 import astyanax.utils.Benchmark
 
-@main def demo2 = Music {
+@main def demo2 = invincible(debugging = true)
+@main def invincible(debugging: Boolean) = Music(debugging) {
     val notes = Notes(440)
     val t = Timer(0.2)
 

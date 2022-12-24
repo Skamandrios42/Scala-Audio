@@ -8,6 +8,7 @@ val root = project in file(".") settings (
     version := "0.0.0",
     scalaVersion := "3.2.1",
     libraryDependencies += "org.scalatest" %% "scalatest" % "3.2.14" % "test",
+    libraryDependencies += "org.scala-lang.modules" %% "scala-parallel-collections" % "1.0.4",
     scalacOptions ++= Seq("-feature", "-deprecation"),
 )
 

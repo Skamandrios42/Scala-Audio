@@ -2,9 +2,9 @@ package astyanax.music2
 
 object Music {
 
-    def apply(op: Player ?=> Track ?=> Unit) = {
+    def apply(debugging: Boolean)(op: Player ?=> Track ?=> Unit) = {
         Player.scoped {
-            Track.scoped {
+            Track.scoped(debugging) {
                 op
             }.play
         }

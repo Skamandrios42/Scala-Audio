@@ -14,7 +14,7 @@ trait Sound extends (Double => Double) {
     def apply(t: Double): Double
 
     def play(duration: Double, msg: String = "")(using player: Player): Unit =    
-        player.play(Array.tabulate((duration * player.sampleRate).toInt)(t => apply(t / player.sampleRate)))
+        player.play(Array.tabulate((duration * player.sampleRate).toInt)(t => apply(t / player.sampleRate)), debugging = false)
     
     def scaleAmplitude(envelope: Envelope) = EnvelopedSound(this, envelope, true)
     def scaleFrequency(envelope: Envelope) = EnvelopedSound(this, envelope, false)

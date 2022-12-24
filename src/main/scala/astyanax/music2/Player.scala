@@ -38,12 +38,12 @@ class Player(val buffer: Array[Byte], val line: SourceDataLine, val sampleRate: 
             line.write(buffer, 0, buffer.length)
             i = 0
 
-    def play(values: Array[Double]): Unit = 
+    def play(values: Array[Double], debugging: Boolean): Unit = 
         val bar = ProgressBar(30, values.length)
         for value <- values do 
             play(value)
-            bar.update(1)
-        println()
+            if debugging then bar.update(1)
+        if debugging then println()
     
 }
 
